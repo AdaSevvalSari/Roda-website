@@ -1008,6 +1008,18 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 @media (max-width: 768px) {
   .hero-bg { background-position: 20% 75%; }
 
+  /* Ana sayfa galeri: mobilde düzgün sıralansın */
+  .gallery-item {
+    min-height: unset !important;
+    height: auto !important;
+    grid-row: unset !important;
+    aspect-ratio: 4/3 !important;
+  }
+  .gallery-item img {
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
   /* Hizmetlerimiz & Hakkımızda: 2 sütun → 1 sütun */
   [style*="grid-template-columns:1fr 1fr"],
   [style*="grid-template-columns: 1fr 1fr"] {
