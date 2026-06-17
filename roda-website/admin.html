@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RODA Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body { background: #0d0d0d; color: #e8e8e8; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    /* ── GİRİŞ EKRANI ── */
+    #giris-ekrani {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .giris-kutu {
+      background: #1a1a1a; border: 1px solid rgba(201,168,76,.2);
+      padding: 2.5rem; width: 340px; text-align: center;
+    }
+    .giris-kutu .logo { font-size: 2rem; letter-spacing: .3em; color: #C9A84C; margin-bottom: .5rem; }
+    .giris-kutu p { color: #888; font-size: .85rem; margin-bottom: 2rem; }
+    .giris-kutu input {
+      width: 100%; padding: .75rem 1rem; background: #111; border: 1px solid rgba(201,168,76,.25);
+      color: #e8e8e8; font-size: .95rem; margin-bottom: 1rem; outline: none;
+    }
+    .giris-kutu input:focus { border-color: #C9A84C; }
+    .btn-gold {
+      width: 100%; padding: .75rem; background: #C9A84C; color: #000;
+      font-weight: 700; font-size: .9rem; border: none; cursor: pointer; letter-spacing: .05em;
+      transition: background .2s;
+    }
+    .btn-gold:hover { background: #b8963e; }
+    .hata-mesaj { color: #e05; font-size: .82rem; margin-top: .5rem; display: none; }
+
+    /* ── PANEL ── */
+    #panel { display: none; }
+
+    .panel-header {
+      background: #111; border-bottom: 1px solid rgba(201,168,76,.15);
+      padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-header .logo { font-size: 1.4rem; letter-spacing: .25em; color: #C9A84C; }
+    .panel-header span { color: #888; font-size: .82rem; }
+    .cikis-btn {
+      background: none; border: 1px solid rgba(201,168,76,.3); color: #C9A84C;
+      padding: .4rem .9rem; cursor: pointer; font-size: .8rem; transition: all .2s;
+    }
+    .cikis-btn:hover { background: rgba(201,168,76,.1); }
+
+    .panel-icerik { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* ── ÜRÜN EKLEME FORMU ── */
+    .form-kutu {
+      background: #1a1a1a; border: 1px solid rgba(201,168,76,.15);
+      padding: 2rem; margin-bottom: 2.5rem;
+    }
+    .form-kutu h2 { color: #C9A84C; font-size: 1rem; letter-spacing: .1em; margin-bottom: 1.5rem; }
+    .form-satir { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-satir.tek { grid-template-columns: 1fr; }
+    label { display: block; color: #aaa; font-size: .78rem; margin-bottom: .35rem; letter-spacing: .05em; }
+    input[type="text"], select, input[type="file"] {
+      width: 100%; padding: .7rem .9rem; background: #111;
+      border: 1px solid rgba(201,168,76,.2); color: #e8e8e8; font-size: .88rem; outline: none;
+    }
+    input[type="text"]:focus, select:focus { border-color: #C9A84C; }
+    select option { background: #1a1a1a; }
+    input[type="file"] { padding: .5rem; cursor: pointer; color: #888; }
+    .onizleme-alan { margin-top: .5rem; }
+    .onizleme-alan img { max-width: 120px; max-height: 100px; object-fit: cover; border: 1px solid rgba(201,168,76,.2); display: none; }
+    .yukle-durumu { font-size: .78rem; color: #C9A84C; margin-top: .4rem; min-height: 1rem; }
+
+    /* ── ÜRÜN LİSTESİ ── */
+    .liste-kutu { background: #1a1a1a; border: 1px solid rgba(201,168,76,.15); padding: 2rem; }
+    .liste-kutu h2 { color: #C9A84C; font-size: 1rem; letter-spacing: .1em; margin-bottom: 1.5rem; }
+
+    .kategori-grup { margin-bottom: 2rem; }
+    .kategori-baslik {
+      font-size: .75rem; letter-spacing: .15em; color: #888;
+      border-bottom: 1px solid rgba(201,168,76,.1); padding-bottom: .5rem; margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    .urun-satir {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .75rem 0; border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .urun-satir:last-child { border-bottom: none; }
+    .urun-satir img { width: 60px; height: 50px; object-fit: cover; flex-shrink: 0; }
+    .urun-satir-bilgi { flex: 1; }
+    .urun-satir-bilgi strong { display: block; font-size: .88rem; color: #e8e8e8; }
+    .urun-satir-bilgi span { font-size: .75rem; color: #666; }
+    .sil-btn {
+      background: none; border: 1px solid rgba(229,57,53,.3); color: #e53935;
+      width: 34px; height: 34px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; font-size: .85rem;
+    }
+    .sil-btn:hover { background: rgba(229,57,53,.1); border-color: #e53935; }
+
+    .bos-mesaj { color: #555; font-size: .85rem; text-align: center; padding: 1.5rem 0; }
+    .yukleniyor { color: #555; font-size: .85rem; text-align: center; padding: 1rem 0; }
+  </style>
+</head>
+<body>
+
+<!-- ── GİRİŞ EKRANI ── -->
+<div id="giris-ekrani">
+  <div class="giris-kutu">
+    <div class="logo">RODA</div>
+    <p>Admin Paneli</p>
+    <input type="password" id="sifre-input" placeholder="Şifre" onkeydown="if(event.key==='Enter') girisYap()">
+    <button class="btn-gold" onclick="girisYap()">Giriş Yap</button>
+    <div class="hata-mesaj" id="hata-mesaj">Hatalı şifre</div>
+  </div>
+</div>
+
+<!-- ── PANEL ── -->
+<div id="panel">
+  <div class="panel-header">
+    <div class="logo">RODA</div>
+    <span>Ürün Yönetimi</span>
+    <button class="cikis-btn" onclick="cikisYap()">Çıkış</button>
+  </div>
+
+  <div class="panel-icerik">
+
+    <!-- EKLEME FORMU -->
+    <div class="form-kutu">
+      <h2>YENİ ÜRÜN EKLE</h2>
+      <div class="form-satir">
+        <div>
+          <label>ÜRÜN ADI</label>
+          <input type="text" id="urun-adi" placeholder="Model 8">
+        </div>
+        <div>
+          <label>KATEGORİ</label>
+          <select id="urun-kategori">
+            <option value="tul-fon">Tül & Fon Perdeler</option>
+            <option value="jaluzi">Jaluzi</option>
+            <option value="olcuye-gore-hali">Ölçüye Göre Halılar</option>
+            <option value="iran-halisi">Premium İran Halıları</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-satir tek">
+        <div>
+          <label>GÖRSEL</label>
+          <input type="file" id="gorsel-input" accept="image/*" onchange="onizleGorsel(this)">
+          <div class="onizleme-alan"><img id="onizleme-img" src="" alt=""></div>
+          <div class="yukle-durumu" id="yukle-durumu"></div>
+        </div>
+      </div>
+      <button class="btn-gold" onclick="urunEkle()" id="ekle-btn" style="width:auto;padding:.7rem 2rem;margin-top:1rem;">
+        Kaydet
+      </button>
+    </div>
+
+    <!-- ÜRÜN LİSTESİ -->
+    <div class="liste-kutu">
+      <h2>MEVCUT ÜRÜNLER</h2>
+      <div id="urun-listesi"><div class="yukleniyor">Yükleniyor...</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC5FRmZQ4aVaSiDHd7BWb7HWGsApRoPsDo",
+    authDomain: "roda-website-f93b6.firebaseapp.com",
+    projectId: "roda-website-f93b6",
+    storageBucket: "roda-website-f93b6.firebasestorage.app",
+    messagingSenderId: "287095634230",
+    appId: "1:287095634230:web:1710a9cf722d53b62a1b97"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const SIFRE = "roda2024";
+  const CLOUD_NAME = "dscccfieg";
+  const UPLOAD_PRESET = "roda-urunler";
+
+  const KATEGORI_ETIKETLER = {
+    "tul-fon": "Tül & Fon Perdeler",
+    "jaluzi": "Jaluzi",
+    "olcuye-gore-hali": "Ölçüye Göre Halılar",
+    "iran-halisi": "Premium İran Halıları"
+  };
+
+  // Giriş
+  window.girisYap = function() {
+    const val = document.getElementById("sifre-input").value;
+    if (val === SIFRE) {
+      document.getElementById("giris-ekrani").style.display = "none";
+      document.getElementById("panel").style.display = "block";
+      listeyiYukle();
+    } else {
+      document.getElementById("hata-mesaj").style.display = "block";
+    }
+  };
+
+  window.cikisYap = function() {
+    document.getElementById("giris-ekrani").style.display = "flex";
+    document.getElementById("panel").style.display = "none";
+    document.getElementById("sifre-input").value = "";
+  };
+
+  // Görsel önizleme
+  window.onizleGorsel = function(input) {
+    const img = document.getElementById("onizleme-img");
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => { img.src = e.target.result; img.style.display = "block"; };
+      reader.readAsDataURL(input.files[0]);
+    }
+  };
+
+  // Cloudinary'e yükle
+  async function gorselYukle(dosya) {
+    const fd = new FormData();
+    fd.append("file", dosya);
+    fd.append("upload_preset", UPLOAD_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: "POST", body: fd });
+    const data = await res.json();
+    return data.secure_url;
+  }
+
+  // Ürün ekle
+  window.urunEkle = async function() {
+    const ad = document.getElementById("urun-adi").value.trim();
+    const kategori = document.getElementById("urun-kategori").value;
+    const dosya = document.getElementById("gorsel-input").files[0];
+    const durum = document.getElementById("yukle-durumu");
+    const btn = document.getElementById("ekle-btn");
+
+    if (!ad) { alert("Ürün adı giriniz."); return; }
+    if (!dosya) { alert("Görsel seçiniz."); return; }
+
+    btn.disabled = true;
+    btn.textContent = "Yükleniyor...";
+    durum.textContent = "Görsel yükleniyor...";
+
+    try {
+      const gorselUrl = await gorselYukle(dosya);
+      durum.textContent = "Kaydediliyor...";
+      await addDoc(collection(db, "urunler"), {
+        ad, kategori, gorselUrl,
+        tarih: Date.now()
+      });
+      durum.textContent = "✓ Eklendi!";
+      document.getElementById("urun-adi").value = "";
+      document.getElementById("gorsel-input").value = "";
+      document.getElementById("onizleme-img").style.display = "none";
+      setTimeout(() => { durum.textContent = ""; }, 2000);
+      listeyiYukle();
+    } catch(e) {
+      durum.textContent = "Hata: " + e.message;
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Kaydet";
+  };
+
+  // Ürün sil
+  window.urunSil = async function(id) {
+    if (!confirm("Bu ürünü silmek istediğinize emin misiniz?")) return;
+    await deleteDoc(doc(db, "urunler", id));
+    listeyiYukle();
+  };
+
+  // Listeyi yükle
+  async function listeyiYukle() {
+    const kap = document.getElementById("urun-listesi");
+    kap.innerHTML = '<div class="yukleniyor">Yükleniyor...</div>';
+
+    const snap = await getDocs(query(collection(db, "urunler"), orderBy("tarih", "asc")));
+    const urunler = [];
+    snap.forEach(d => urunler.push({ id: d.id, ...d.data() }));
+
+    if (urunler.length === 0) {
+      kap.innerHTML = '<div class="bos-mesaj">Henüz ürün eklenmemiş.</div>';
+      return;
+    }
+
+    const gruplar = {};
+    urunler.forEach(u => {
+      if (!gruplar[u.kategori]) gruplar[u.kategori] = [];
+      gruplar[u.kategori].push(u);
+    });
+
+    const kategoriSirasi = ["tul-fon", "jaluzi", "olcuye-gore-hali", "iran-halisi"];
+    let html = "";
+    kategoriSirasi.forEach(kat => {
+      if (!gruplar[kat]) return;
+      html += `<div class="kategori-grup">
+        <div class="kategori-baslik">${KATEGORI_ETIKETLER[kat]} (${gruplar[kat].length})</div>`;
+      gruplar[kat].forEach(u => {
+        html += `<div class="urun-satir">
+          <img src="${u.gorselUrl}" alt="${u.ad}">
+          <div class="urun-satir-bilgi">
+            <strong>${u.ad}</strong>
+            <span>${KATEGORI_ETIKETLER[u.kategori]}</span>
+          </div>
+          <button class="sil-btn" onclick="urunSil('${u.id}')" title="Sil">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>`;
+      });
+      html += "</div>";
+    });
+
+    kap.innerHTML = html;
+  }
+</script>
+</body>
+</html>

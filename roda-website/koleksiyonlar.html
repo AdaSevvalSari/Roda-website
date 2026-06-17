@@ -46,7 +46,7 @@
       <div class="section-divider fade-in"></div>
       <p class="section-text fade-in">Salonunuzdan yatak odanıza, her mekâna özel ölçüde dikilen tül ve fon perde koleksiyonlarımız.</p>
 
-      <div class="products-grid">
+      <div class="products-grid" id="grid-tul-fon">
 
         <div class="product-card fade-in">
           <img src="images/perde-model-1.jpeg" alt="Tül Perde Model 1" class="product-card-img">
@@ -191,7 +191,7 @@
       <div class="section-divider fade-in"></div>
       <p class="section-text fade-in">Modern ve işlevsel jaluzi modellerimizle ofis ve ev alanlarınıza şıklık katın.</p>
 
-      <div class="products-grid">
+      <div class="products-grid" id="grid-jaluzi">
 
         <div class="product-card fade-in">
           <img src="images/perde-model-8-jaluzi.jpeg" alt="Jaluzi Model 1" class="product-card-img">
@@ -241,7 +241,7 @@
       <div class="section-divider fade-in"></div>
       <p class="section-text fade-in">İstediğiniz boyut ve desende, mekânınıza özel hazırlanan halı koleksiyonlarımız.</p>
 
-      <div class="products-grid">
+      <div class="products-grid" id="grid-olcuye-gore-hali">
 
         <div class="product-card fade-in">
           <img src="images/halı-modelleri-1.jpeg" alt="Ölçüye Göre Halı 1" class="product-card-img">
@@ -310,7 +310,7 @@
       <div class="section-divider fade-in"></div>
       <p class="section-text fade-in">Yılların ustalığıyla dokunmuş, el işçiliğiyle hazırlanan premium İran halıları koleksiyonumuz.</p>
 
-      <div class="products-grid">
+      <div class="products-grid" id="grid-iran-halisi">
 
         <div class="product-card fade-in">
           <img src="images/halı-model-2.jpeg" alt="İran Halısı 1" class="product-card-img">
@@ -413,6 +413,86 @@
     <button class="lightbox-close" id="lightbox-close" aria-label="Kapat">✕</button>
     <img src="" alt="" id="lightbox-img">
   </div>
+
+  <!-- Firebase dinamik ürünler -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyC5FRmZQ4aVaSiDHd7BWb7HWGsApRoPsDo",
+      authDomain: "roda-website-f93b6.firebaseapp.com",
+      projectId: "roda-website-f93b6",
+      storageBucket: "roda-website-f93b6.firebasestorage.app",
+      messagingSenderId: "287095634230",
+      appId: "1:287095634230:web:1710a9cf722d53b62a1b97"
+    });
+    const db = getFirestore(app);
+
+    const BOYUTLAR = {
+      "tul-fon": ["100 x 200 cm","150 x 260 cm","200 x 260 cm","250 x 260 cm","300 x 260 cm","Özel Ölçü"],
+      "jaluzi": ["60 x 120 cm","80 x 150 cm","100 x 150 cm","120 x 200 cm","150 x 200 cm","Özel Ölçü"],
+      "olcuye-gore-hali": ["80 x 150 cm","100 x 200 cm","150 x 230 cm","200 x 290 cm","250 x 350 cm","Özel Ölçü"],
+      "iran-halisi": null
+    };
+
+    function kartOlustur(urun) {
+      const boyutlar = BOYUTLAR[urun.kategori];
+      const div = document.createElement("div");
+      div.className = "product-card fade-in";
+
+      if (boyutlar) {
+        div.innerHTML = `
+          <img src="${urun.gorselUrl}" alt="${urun.ad}" class="product-card-img">
+          <div class="product-card-body">
+            <p class="product-card-name">${urun.ad}</p>
+            <select class="urun-boyut" style="width:100%;background:#1a1a1a;color:#888;border:1px solid rgba(201,168,76,.25);padding:0.5rem;font-family:inherit;font-size:0.8rem;margin-top:0.5rem;cursor:pointer;">
+              <option value="">${urun.kategori.includes("hali") ? "Boyut Seçin" : "Ölçü Seçin"}</option>
+              ${boyutlar.map(b => `<option>${b}</option>`).join("")}
+            </select>
+            <button type="button" onclick="urunSiparis(this, '${urun.ad}')" class="product-card-btn" style="border:none;">
+              <i class="fa-brands fa-whatsapp"></i> Sipariş Ver
+            </button>
+          </div>`;
+      } else {
+        const mesaj = encodeURIComponent(`Merhaba, ${urun.ad} hakkında bilgi almak istiyorum.`);
+        div.innerHTML = `
+          <img src="${urun.gorselUrl}" alt="${urun.ad}" class="product-card-img">
+          <div class="product-card-body">
+            <p class="product-card-name">${urun.ad}</p>
+            <a href="https://wa.me/905428165539?text=${mesaj}" target="_blank" class="product-card-btn">
+              <i class="fa-brands fa-whatsapp"></i> Bilgi Al
+            </a>
+          </div>`;
+      }
+
+      div.querySelector(".product-card-img").addEventListener("click", () => {
+        const overlay = document.getElementById("lightbox");
+        const lbImg = document.getElementById("lightbox-img");
+        lbImg.src = urun.gorselUrl;
+        lbImg.alt = urun.ad;
+        overlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+      });
+
+      return div;
+    }
+
+    async function dinamikUrunleriYukle() {
+      try {
+        const snap = await getDocs(query(collection(db, "urunler"), orderBy("tarih", "asc")));
+        snap.forEach(d => {
+          const urun = { id: d.id, ...d.data() };
+          const grid = document.getElementById("grid-" + urun.kategori);
+          if (grid) grid.appendChild(kartOlustur(urun));
+        });
+      } catch(e) {
+        console.log("Firebase yüklenemedi:", e.message);
+      }
+    }
+
+    dinamikUrunleriYukle();
+  </script>
 
   <script src="js/main.js"></script>
   <script>
