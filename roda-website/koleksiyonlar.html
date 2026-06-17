@@ -197,11 +197,22 @@
       return div;
     }
 
+    var QUERY_URL = "https://firestore.googleapis.com/v1/projects/roda-website-f93b6/databases/(default)/documents:runQuery?key=AIzaSyC5FRmZQ4aVaSiDHd7BWb7HWGsApRoPsDo";
+
     var _dbg = document.getElementById("db-debug");
-    fetch(FIRESTORE_URL).then(function(r){ return r.json(); }).then(function(data) {
-      if (!data.documents) { if(_dbg) _dbg.textContent = "Döküman yok"; return; }
-      if(_dbg) _dbg.textContent = "Yükleniyor: " + data.documents.length + " ürün";
-      data.documents.forEach(function(doc) {
+    fetch(QUERY_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{collectionId: "urunler"}],
+          orderBy: [{field: {fieldPath: "tarih"}, direction: "ASCENDING"}]
+        }
+      })
+    }).then(function(r){ return r.json(); }).then(function(results) {
+      var docs = results.filter(function(r){ return r.document; }).map(function(r){ return r.document; });
+      if (!docs.length) { if(_dbg) _dbg.textContent = "Döküman yok"; return; }
+      docs.forEach(function(doc) {
         try {
           var f = doc.fields;
           if (!f) return;
