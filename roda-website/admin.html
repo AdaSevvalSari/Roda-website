@@ -182,7 +182,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const SIFRE = "roda2024";
+  const SIFRE_HASH = "642b0cac45e84275f9b758444dc4c277e3ff169cb5d7dab51e0f8573f8f06c56";
   const CLOUD_NAME = "dscccfieg";
   const UPLOAD_PRESET = "roda-urunler";
 
@@ -194,9 +194,11 @@
   };
 
   // Giriş
-  window.girisYap = function() {
+  window.girisYap = async function() {
     const val = document.getElementById("sifre-input").value;
-    if (val === SIFRE) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(val));
+    const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+    if (hash === SIFRE_HASH) {
       document.getElementById("giris-ekrani").style.display = "none";
       document.getElementById("panel").style.display = "block";
       listeyiYukle();
