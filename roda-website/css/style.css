@@ -606,18 +606,23 @@ nav a:hover::after, nav a.active::after { width: 100%; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px; height: 44px;
-  border: 1px solid rgba(201,168,76,0.3);
-  color: var(--gray-mid);
-  font-size: 1.1rem;
-  transition: color var(--transition), border-color var(--transition), background var(--transition);
+  width: 48px; height: 48px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 1.25rem;
+  transition: color var(--transition), border-color var(--transition), background var(--transition), transform var(--transition);
 }
 
-.social-links a:hover {
-  color: var(--gold);
-  border-color: var(--gold);
-  background: rgba(201,168,76,0.08);
-}
+.social-links a:hover { transform: translateY(-3px); }
+
+.social-links a[title="Instagram"] { color: #E1306C; border-color: #E1306C; }
+.social-links a[title="Instagram"]:hover { background: rgba(225,48,108,0.12); border-color: #E1306C; }
+
+.social-links a[title="WhatsApp"] { color: #25D366; border-color: #25D366; }
+.social-links a[title="WhatsApp"]:hover { background: rgba(37,211,102,0.12); border-color: #25D366; }
+
+.social-links a[title="TikTok"] { color: #fff; border-color: rgba(255,255,255,0.5); }
+.social-links a[title="TikTok"]:hover { background: rgba(255,255,255,0.08); border-color: #fff; }
 
 /* ─── PAGE HERO (inner pages) ────────────────────────── */
 .page-hero {
