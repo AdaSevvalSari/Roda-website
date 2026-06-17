@@ -405,18 +405,8 @@
   </div>
 
   <!-- Firebase dinamik ürünler -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-    const _app = firebase.initializeApp({
-      apiKey: "AIzaSyC5FRmZQ4aVaSiDHd7BWb7HWGsApRoPsDo",
-      authDomain: "roda-website-f93b6.firebaseapp.com",
-      projectId: "roda-website-f93b6",
-      storageBucket: "roda-website-f93b6.firebasestorage.app",
-      messagingSenderId: "287095634230",
-      appId: "1:287095634230:web:1710a9cf722d53b62a1b97"
-    });
-    const _db = firebase.firestore();
+    var FIRESTORE_URL = "https://firestore.googleapis.com/v1/projects/roda-website-f93b6/databases/(default)/documents/urunler?key=AIzaSyC5FRmZQ4aVaSiDHd7BWb7HWGsApRoPsDo";
 
     const BOYUTLAR = {
       "tul-fon": ["100 x 200 cm","150 x 260 cm","200 x 260 cm","250 x 260 cm","300 x 260 cm","Özel Ölçü"],
@@ -472,15 +462,21 @@
       return div;
     }
 
-    _db.collection("urunler").get().then(function(snap) {
-      snap.forEach(function(d) {
-        var urun = Object.assign({ id: d.id }, d.data());
+    fetch(FIRESTORE_URL).then(function(r){ return r.json(); }).then(function(data) {
+      if (!data.documents) return;
+      data.documents.forEach(function(doc) {
+        var f = doc.fields;
+        if (!f) return;
+        var urun = {
+          id: doc.name.split("/").pop(),
+          ad: f.ad ? f.ad.stringValue : "",
+          kategori: f.kategori ? f.kategori.stringValue : "",
+          gorselUrl: f.gorselUrl ? f.gorselUrl.stringValue : ""
+        };
         var grid = document.getElementById("grid-" + urun.kategori);
-        if (grid) grid.appendChild(kartOlustur(urun));
+        if (grid && urun.ad && urun.gorselUrl) grid.appendChild(kartOlustur(urun));
       });
-    }).catch(function(e) {
-      console.error("Firebase hata:", e);
-    });
+    }).catch(function(e){ console.error("Firestore hata:", e); });
   </script>
 
   <script src="js/main.js"></script>
