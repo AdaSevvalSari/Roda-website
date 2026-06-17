@@ -199,23 +199,60 @@
 
     var _dbg = document.getElementById("db-debug");
     fetch(FIRESTORE_URL).then(function(r){ return r.json(); }).then(function(data) {
-      if (_dbg) _dbg.textContent = "Döküman sayısı: " + (data.documents ? data.documents.length : 0);
-      if (!data.documents) return;
+      if (!data.documents) { if(_dbg) _dbg.textContent = "Döküman yok"; return; }
+      if(_dbg) _dbg.textContent = "Yükleniyor: " + data.documents.length + " ürün";
       data.documents.forEach(function(doc) {
-        var f = doc.fields;
-        if (!f) return;
-        var urun = {
-          id: doc.name.split("/").pop(),
-          ad: f.ad ? f.ad.stringValue : "",
-          kategori: f.kategori ? f.kategori.stringValue : "",
-          gorselUrl: f.gorselUrl ? f.gorselUrl.stringValue : ""
-        };
-        var grid = document.getElementById("grid-" + urun.kategori);
-        if (grid && urun.ad && urun.gorselUrl) grid.appendChild(kartOlustur(urun));
+        try {
+          var f = doc.fields;
+          if (!f) return;
+          var urun = {
+            id: doc.name.split("/").pop(),
+            ad: f.ad ? f.ad.stringValue : "",
+            kategori: f.kategori ? f.kategori.stringValue : "",
+            gorselUrl: f.gorselUrl ? f.gorselUrl.stringValue : ""
+          };
+          if (!urun.ad || !urun.gorselUrl || !urun.kategori) return;
+          var grid = document.getElementById("grid-" + urun.kategori);
+          if (!grid) return;
+          var div = document.createElement("div");
+          div.className = "product-card fade-in";
+          div.innerHTML = kartOlusturHTML(urun);
+          div.querySelector(".product-card-img").addEventListener("click", function() {
+            var overlay = document.getElementById("lightbox");
+            var lbImg = document.getElementById("lightbox-img");
+            lbImg.src = urun.gorselUrl; lbImg.alt = urun.ad;
+            overlay.classList.add("active"); document.body.style.overflow = "hidden";
+          });
+          var sipBtn = div.querySelector(".dinamik-siparis-btn");
+          if (sipBtn) sipBtn.addEventListener("click", function() { urunSiparis(this, urun.ad); });
+          grid.appendChild(div);
+        } catch(err) {
+          if(_dbg) _dbg.textContent = "Kart hatası: " + err.message;
+        }
       });
-    }).catch(function(e){
-      if (_dbg) _dbg.textContent = "Hata: " + e.message;
-    });
+      if(_dbg) _dbg.textContent = "";
+    }).catch(function(e){ if(_dbg) _dbg.textContent = "Fetch hatası: " + e.message; });
+
+    function kartOlusturHTML(urun) {
+      var boyutlar = {
+        "tul-fon": ["100 x 200 cm","150 x 260 cm","200 x 260 cm","250 x 260 cm","300 x 260 cm","Özel Ölçü"],
+        "jaluzi": ["60 x 120 cm","80 x 150 cm","100 x 150 cm","120 x 200 cm","150 x 200 cm","Özel Ölçü"],
+        "olcuye-gore-hali": ["80 x 150 cm","100 x 200 cm","150 x 230 cm","200 x 290 cm","250 x 350 cm","Özel Ölçü"]
+      };
+      var bList = boyutlar[urun.kategori];
+      var img = '<img src="' + urun.gorselUrl + '" alt="' + urun.ad + '" class="product-card-img">';
+      if (bList) {
+        var opts = bList.map(function(b){ return '<option>' + b + '</option>'; }).join('');
+        return img + '<div class="product-card-body"><p class="product-card-name">' + urun.ad + '</p>' +
+          '<select class="urun-boyut" style="width:100%;background:#1a1a1a;color:#888;border:1px solid rgba(201,168,76,.25);padding:0.5rem;font-family:inherit;font-size:0.8rem;margin-top:0.5rem;cursor:pointer;">' +
+          '<option value="">Ölçü Seçin</option>' + opts + '</select>' +
+          '<button type="button" class="product-card-btn dinamik-siparis-btn" style="border:none;"><i class="fa-brands fa-whatsapp"></i> Sipariş Ver</button></div>';
+      } else {
+        var msg = encodeURIComponent('Merhaba, ' + urun.ad + ' hakkında bilgi almak istiyorum.');
+        return img + '<div class="product-card-body"><p class="product-card-name">' + urun.ad + '</p>' +
+          '<a href="https://wa.me/905428165539?text=' + msg + '" target="_blank" class="product-card-btn"><i class="fa-brands fa-whatsapp"></i> Bilgi Al</a></div>';
+      }
+    }
   </script>
 
   <script src="js/main.js"></script>
