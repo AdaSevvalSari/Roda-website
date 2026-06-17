@@ -215,7 +215,7 @@
           var grid = document.getElementById("grid-" + urun.kategori);
           if (!grid) return;
           var div = document.createElement("div");
-          div.className = "product-card fade-in";
+          div.className = "product-card fade-in visible";
           div.innerHTML = kartOlusturHTML(urun);
           div.querySelector(".product-card-img").addEventListener("click", function() {
             var overlay = document.getElementById("lightbox");
