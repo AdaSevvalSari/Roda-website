@@ -407,7 +407,7 @@
   <!-- Firebase dinamik ürünler -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const app = initializeApp({
       apiKey: "AIzaSyC5FRmZQ4aVaSiDHd7BWb7HWGsApRoPsDo",
@@ -470,7 +470,7 @@
 
     async function dinamikUrunleriYukle() {
       try {
-        const snap = await getDocs(query(collection(db, "urunler"), orderBy("tarih", "asc")));
+        const snap = await getDocs(collection(db, "urunler"));
         snap.forEach(d => {
           const urun = { id: d.id, ...d.data() };
           const grid = document.getElementById("grid-" + urun.kategori);
