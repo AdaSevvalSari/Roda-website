@@ -39,6 +39,7 @@
   <section class="section">
     <div class="section-inner">
       <p class="breadcrumb fade-in"><a href="/">Ana Sayfa</a> / <span>Koleksiyonlar</span></p>
+      <p id="db-debug" style="color:#C9A84C;font-size:.75rem;margin-bottom:1rem;"></p>
 
       <!-- ── TÜL & FON PERDELER ── -->
       <p class="section-label fade-in">Perde Koleksiyonu</p>
@@ -462,7 +463,9 @@
       return div;
     }
 
+    var _dbg = document.getElementById("db-debug");
     fetch(FIRESTORE_URL).then(function(r){ return r.json(); }).then(function(data) {
+      if (_dbg) _dbg.textContent = "Döküman sayısı: " + (data.documents ? data.documents.length : 0);
       if (!data.documents) return;
       data.documents.forEach(function(doc) {
         var f = doc.fields;
@@ -476,7 +479,9 @@
         var grid = document.getElementById("grid-" + urun.kategori);
         if (grid && urun.ad && urun.gorselUrl) grid.appendChild(kartOlustur(urun));
       });
-    }).catch(function(e){ console.error("Firestore hata:", e); });
+    }).catch(function(e){
+      if (_dbg) _dbg.textContent = "Hata: " + e.message;
+    });
   </script>
 
   <script src="js/main.js"></script>
